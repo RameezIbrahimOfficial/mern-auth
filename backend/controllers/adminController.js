@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const asyncHandler = require('express-async-handler')
 const bcrypt = require('bcryptjs')
 const Admin = require('../model/adminModel')
+const User = require('../model/userModel')
 
 // @desc Authenticate An Admin
 // @route POST /api/admin/login
@@ -25,6 +26,89 @@ const loginAdmin = asyncHandler(async (req, res) => {
     }
 })
 
+// @desc Get All Users
+// @route GET /api/admin/
+// @access Private
+const getUsers = asyncHandler( async(req, res) => {
+    const users = await User.find()
+    if(users) {
+        res.status(200).json({users})
+    } else {
+        res.status(404)
+        throw new Error('Users Not Found')
+    }
+})
+
+// @desc Get User Search
+// @route GET /api/admin/search
+// @access Private
+const userSearch = asyncHandler( async(req, res) => {
+    const users = await User.find({})
+    if(users) {
+        res.status(200).json({users})
+    } else {
+        res.status(404)
+        throw new Error('Users Not Found')
+    }
+})
+
+// @desc Block User
+// @route POST /api/admin/block
+// @access Private
+const userBlock = asyncHandler( async(req, res) => {
+    const userId = req.body.userId
+    const users = await User.findByIdAndUpdate(userId, {isBlock:true})
+    if(users) {
+        res.status(200).json({users})
+    } else {
+        res.status(404)
+        throw new Error('Users Not Found')
+    }
+})
+
+// @desc UnBlock User
+// @route POST /api/admin/unblock
+// @access Private
+const userUnBlock = asyncHandler( async(req, res) => {
+    const userId = req.body.userId
+    const users = await User.findByIdAndUpdate(userId, {isBlock: false})
+    if(users) {
+        res.status(200).json({users})
+    } else {
+        res.status(400)
+        throw new Error('Users Not Found')
+    }
+})
+
+// @desc Edit User
+// @route POST /api/admin/userId
+// @access Private
+const editUser = asyncHandler( async(req, res) => {
+    const { userId, name, email } = req.body
+    const users = await User.findByIdAndUpdate(userId, {isBlock: false})
+    if(!users) {
+        res.status(400)
+        throw new Error('User Not Found')
+    }
+    
+    const updatedUser = await User.findByIdAndUpdate(userId, { name, email }, { new: true })
+
+    return res.status(200).json(updatedUser)
+})
+
+// @desc Search User
+// @route GET /api/admin/search
+// @access Private
+const searchUser = asyncHandler(async (req, res) => {
+    const query = req.body.query;
+    const regex = new RegExp(`^${query}`, 'i');
+
+    const users = await User.find({ name: { $regex: regex } })
+    console.log(users);
+    
+    res.status(200).json(users);
+});
+
 
 // Generate JWT
 const generateToken = (id) => {
@@ -34,5 +118,10 @@ const generateToken = (id) => {
 }
 
 module.exports = {
-    loginAdmin
+    loginAdmin,
+    getUsers,
+    userUnBlock,
+    userBlock,
+    editUser,
+    searchUser
 }

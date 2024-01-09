@@ -16,6 +16,10 @@ const userSchema = mongoose.Schema({
     },
     profileUrl: {
         type: String
+    },
+    isBlock: {
+        type:Boolean,
+        default: false
     }
 }, {
     timestamps: true
