@@ -37,6 +37,7 @@ const registerUser = asyncHandler(async (req, res) => {
             _id: user.id,
             name: user.name,
             email: user.email,
+            profileUrl: user.profileUrl,
             token: generateToken(user._id)
         })
     } else {
@@ -59,6 +60,7 @@ const loginUser = asyncHandler(async (req, res) => {
             _id: user.id,
             name: user.name,
             email: user.email,
+            profileUrl: user.profileUrl,
             token: generateToken(user._id)
         })
     } else {
@@ -74,6 +76,17 @@ const getMe = asyncHandler(async (req, res) => {
     res.status(200).json(req.user)
 })
 
+// @desc Upload User Profile
+// @route POST /api/users/profile
+// @access Private
+const profileUpload = asyncHandler(async (req, res) => {
+    const url = req.body.url
+    await User.findByIdAndUpdate(req.user.id,{
+        profileUrl: url
+    })
+    res.status(200).json(req.user)
+})
+
 // Generate JWT
 const generateToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {
@@ -84,5 +97,6 @@ const generateToken = (id) => {
 module.exports = {
     registerUser,
     loginUser,
-    getMe
+    getMe,
+    profileUpload
 }

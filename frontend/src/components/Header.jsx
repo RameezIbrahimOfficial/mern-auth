@@ -29,7 +29,7 @@ function Header() {
                         </li>
                         <li>
                             <Link to="profile">
-                                <FaUser /> Profile
+                                <FaUser />  Profile
                             </Link>
                         </li>
                     </>
