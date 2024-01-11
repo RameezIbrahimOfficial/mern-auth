@@ -8,6 +8,6 @@ router.get('/', protect, getUsers)
 router.post('/block', protect,  userBlock)
 router.post('/unblock', protect, userUnBlock)
 router.put('/:userId', protect, editUser)
-router.get('/search', protect, searchUser)
+router.post('/search', searchUser)
 
 module.exports = router

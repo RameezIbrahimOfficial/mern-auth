@@ -55,18 +55,24 @@ const loginUser = asyncHandler(async (req, res) => {
     // Check for User email
     const user = await User.findOne({ email })
 
-    if( user && (await bcrypt.compare(password, user.password)) ) {
-        res.json({
-            _id: user.id,
-            name: user.name,
-            email: user.email,
-            profileUrl: user.profileUrl,
-            token: generateToken(user._id)
-        })
-    } else {
+    if(user.isBlock) {
         res.status(400)
-        throw new Error('Invalid Credentials')
+        throw new Error('Blocked By Admin')
+    } else {
+        if( user && (await bcrypt.compare(password, user.password)) ) {
+            res.json({
+                _id: user.id,
+                name: user.name,
+                email: user.email,
+                profileUrl: user.profileUrl,
+                token: generateToken(user._id)
+            })
+        } else {
+            res.status(400)
+            throw new Error('Invalid Credentials')
+        }
     }
+
 })
 
 // @desc Get users Data

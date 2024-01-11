@@ -39,25 +39,13 @@ const getUsers = asyncHandler( async(req, res) => {
     }
 })
 
-// @desc Get User Search
-// @route GET /api/admin/search
-// @access Private
-const userSearch = asyncHandler( async(req, res) => {
-    const users = await User.find({})
-    if(users) {
-        res.status(200).json({users})
-    } else {
-        res.status(404)
-        throw new Error('Users Not Found')
-    }
-})
-
 // @desc Block User
 // @route POST /api/admin/block
 // @access Private
 const userBlock = asyncHandler( async(req, res) => {
     const userId = req.body.userId
-    const users = await User.findByIdAndUpdate(userId, {isBlock:true})
+    const user = await User.findByIdAndUpdate(userId, {isBlock:true})
+    const users = await User.find()
     if(users) {
         res.status(200).json({users})
     } else {
@@ -71,11 +59,12 @@ const userBlock = asyncHandler( async(req, res) => {
 // @access Private
 const userUnBlock = asyncHandler( async(req, res) => {
     const userId = req.body.userId
-    const users = await User.findByIdAndUpdate(userId, {isBlock: false})
+    const user = await User.findByIdAndUpdate(userId, {isBlock: false})
+    const users = await User.find()
     if(users) {
         res.status(200).json({users})
     } else {
-        res.status(400)
+        res.status(404)
         throw new Error('Users Not Found')
     }
 })
@@ -83,18 +72,18 @@ const userUnBlock = asyncHandler( async(req, res) => {
 // @desc Edit User
 // @route POST /api/admin/userId
 // @access Private
-const editUser = asyncHandler( async(req, res) => {
-    const { userId, name, email } = req.body
-    const users = await User.findByIdAndUpdate(userId, {isBlock: false})
-    if(!users) {
-        res.status(400)
-        throw new Error('User Not Found')
+const editUser = asyncHandler(async (req, res) => {
+    const { userId, name, email } = req.body;
+    const updatedUser = await User.findByIdAndUpdate(userId, { name, email }, { new: true });
+    const users = await User.find();
+    if (users) {
+        res.status(200).json({ users });
+    } else {
+        res.status(404);
+        throw new Error('Users Not Found');
     }
-    
-    const updatedUser = await User.findByIdAndUpdate(userId, { name, email }, { new: true })
+});
 
-    return res.status(200).json(updatedUser)
-})
 
 // @desc Search User
 // @route GET /api/admin/search
@@ -104,8 +93,7 @@ const searchUser = asyncHandler(async (req, res) => {
     const regex = new RegExp(`^${query}`, 'i');
 
     const users = await User.find({ name: { $regex: regex } })
-    console.log(users);
-    
+        
     res.status(200).json(users);
 });
 
